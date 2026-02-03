@@ -35,15 +35,11 @@ export default function ChatWindow({ currentUser, partner }: ChatWindowProps) {
         fetchMessages()
     }, [partner.id])
 
-    // 2. Subscribe to Realtime changes
+    // 2. Subscribe to Realtime changes AND Polling Fallback
     useEffect(() => {
-        // Unique channel name for this conversation pair
-        // const channelName = `chat:${currentUser.id}-${partner.id}`; 
-        // Actually, let's use a unique name based on sorted IDs to ensure both parties use same channel?
-        // But postgres_changes doesn't care about channel name for data, it cares about the DB event.
-        // So channel name just needs to be unique per client subscription.
+        // A. Realtime Subscription
         const channel = supabase
-            .channel('any_message_insert') // Changed to generic name
+            .channel('any_message_insert')
             .on(
                 'postgres_changes',
                 {
@@ -52,34 +48,43 @@ export default function ChatWindow({ currentUser, partner }: ChatWindowProps) {
                     table: 'messages',
                 },
                 (payload) => {
-                    console.log('Realtime payload received:', payload); // Debug log
                     const newMsg = payload.new as any
-
-                    // Logic to ensure we only add messages relevant to THIS conversation
                     const isRelevant =
                         (newMsg.sender_id === currentUser.id && newMsg.receiver_id === partner.id) ||
                         (newMsg.sender_id === partner.id && newMsg.receiver_id === currentUser.id);
 
                     if (isRelevant) {
                         setMessages((prev) => {
-                            // Deduplicate
                             if (prev.some(m => m.id === newMsg.id)) return prev;
                             return [...prev, newMsg];
                         })
-                        // Scroll to bottom immediately
                         setTimeout(scrollToBottom, 100);
                     }
                 }
             )
-            .subscribe((status) => {
-                console.log('Subscription status:', status);
-                if (status === 'SUBSCRIBED') {
-                    // console.log('Ready to receive messages');
-                }
-            })
+            .subscribe()
+
+        // B. Polling Fallback (Every 3 seconds)
+        // This ensures that even if Realtime fails, the user still sees messages
+        const intervalId = setInterval(async () => {
+            const latestMessages = await getCreateConversation(partner.id);
+            if (latestMessages && latestMessages.length > 0) {
+                setMessages(prev => {
+                    // Only update if length changed to avoid re-renders? 
+                    // Or better, naive replace to be safe (React handles diffing)
+                    // But we want to avoid scroll jump if no new message.
+                    if (latestMessages.length !== prev.length) {
+                        setTimeout(scrollToBottom, 100);
+                        return latestMessages;
+                    }
+                    return prev;
+                });
+            }
+        }, 3000);
 
         return () => {
             supabase.removeChannel(channel)
+            clearInterval(intervalId) // Cleanup polling
         }
     }, [currentUser.id, partner.id, supabase])
 
