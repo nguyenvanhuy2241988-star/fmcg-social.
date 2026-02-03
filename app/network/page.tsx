@@ -19,6 +19,8 @@ export default async function NetworkPage() {
                 <div className="space-y-6">
                     {referralCode && <InviteCard code={referralCode} />}
 
+                    <ReferralInput />
+
                     <Card>
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium text-gray-500 uppercase">Tổng thành viên</CardTitle>
