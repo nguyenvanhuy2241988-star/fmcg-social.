@@ -10,6 +10,7 @@ import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { toggleLike } from "@/app/actions";
 import { cn } from "@/lib/utils";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 
 import Link from "next/link";
 
@@ -26,6 +27,7 @@ interface PostProps {
         full_name: string | null;
         headline: string | null;
         avatar_url: string | null;
+        is_verified?: boolean;
     } | null;
 }
 
@@ -62,6 +64,7 @@ export default function PostCard({ id, content, image_url, created_at, likes_cou
     const authorName = profiles?.full_name || "Người dùng ẩn danh";
     const authorRole = profiles?.headline || "Thành viên";
     const authorAvatar = profiles?.avatar_url || "";
+    const isVerified = profiles?.is_verified || false;
     const timeAgo = formatDistanceToNow(new Date(created_at), { addSuffix: true, locale: vi });
 
     return (
@@ -74,8 +77,9 @@ export default function PostCard({ id, content, image_url, created_at, likes_cou
                     </Avatar>
                 </Link>
                 <div className="flex flex-col">
-                    <Link href={`/profile/${author_id}`} className="hover:underline">
+                    <Link href={`/profile/${author_id}`} className="hover:underline flex items-center gap-1">
                         <p className="text-sm font-semibold">{authorName}</p>
+                        {isVerified && <VerifiedBadge size={14} />}
                     </Link>
                     <p className="text-xs text-muted-foreground">{authorRole} • {timeAgo}</p>
                 </div>

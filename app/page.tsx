@@ -2,11 +2,19 @@ import PostCard from "@/components/feed/PostCard";
 import CreatePost from "@/components/feed/CreatePost";
 import { createClient } from "@/utils/supabase/server";
 import { RequestItem } from "@/components/feed/RequestItem";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import Link from "next/link";
 
 export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+
+  // Fetch full profile for current user (to get verified status)
+  const { data: currentUserProfile } = user ? await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single() : { data: null };
 
   // 1. Fetch Posts
   const { data: posts } = await supabase
@@ -16,7 +24,8 @@ export default async function Home() {
       profiles (
         full_name,
         headline,
-        avatar_url
+        avatar_url,
+        is_verified
       ),
       likes (
         user_id
@@ -69,8 +78,9 @@ export default async function Home() {
                     )}
                   </div>
                 </div>
-                <h3 className="font-bold text-gray-900 hover:text-teal-600 transition-colors">
-                  {user.user_metadata?.full_name || "Thành viên mới"}
+                <h3 className="font-bold text-gray-900 hover:text-teal-600 transition-colors flex items-center justify-center gap-1">
+                  {currentUserProfile?.full_name || user.user_metadata?.full_name || "Thành viên mới"}
+                  {currentUserProfile?.is_verified && <VerifiedBadge size={16} />}
                 </h3>
               </Link>
               <p className="text-xs text-gray-500 mb-3">{user.user_metadata?.headline || "Chào mừng bạn"}</p>
