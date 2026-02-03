@@ -70,3 +70,26 @@ export async function acceptConnectionRequest(requesterId: string) {
     revalidatePath(`/profile/${requesterId}`)
     return { success: true }
 }
+
+export async function getConnections(userId: string) {
+    const supabase = await createClient()
+
+    // Get all 'accepted' connections where user is either requester or receiver
+    const { data } = await supabase
+        .from('connections')
+        .select(`
+            requester:requester_id(id, full_name, avatar_url, headline),
+            receiver:receiver_id(id, full_name, avatar_url, headline)
+        `)
+        .eq('status', 'accepted')
+        .or(`requester_id.eq.${userId},receiver_id.eq.${userId}`)
+
+    if (!data) return []
+
+    // Map to a clean list of "friends"
+    return data.map((conn: any) => {
+        // If I am requester, friend is receiver. If I am receiver, friend is requester
+        if (conn.requester.id === userId) return conn.receiver
+        return conn.requester
+    })
+}

@@ -36,11 +36,22 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     const { data: { user: currentUser } } = await supabase.auth.getUser();
     const isOwner = currentUser?.id === profile.id;
 
-    // 3. Get Connection Status
+    import { getConnectionStatus, getConnections } from "@/app/actions_connections";
+    // ... imports
+
+    // ... inside ProfilePage
+    // 3. Get Connection Status & List
     let connectionStatus = 'none';
-    if (!isOwner && currentUser) {
-        connectionStatus = await getConnectionStatus(profile.id);
-    }
+    let connections: any[] = [];
+
+    // Parallel fetching
+    const [statusRes, connectionsRes] = await Promise.all([
+        (!isOwner && currentUser) ? getConnectionStatus(profile.id) : Promise.resolve('none'),
+        getConnections(profile.id)
+    ]);
+
+    connectionStatus = statusRes as string;
+    connections = connectionsRes;
 
     // 4. Status Color Logic
     const statusColors = {
@@ -125,6 +136,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                         </div>
                     </div>
 
+
                     {/* Call to Action (Fake for now) */}
                     <div className="border-t pt-4 mt-6 flex justify-center">
                         <p className="text-sm text-muted-foreground italic">
@@ -132,6 +144,32 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                         </p>
                     </div>
                 </div>
+            </div>
+
+            {/* Connections Section */}
+            <div className="mt-8">
+                <h3 className="text-xl font-bold mb-4">Mạng lưới kết nối ({connections.length})</h3>
+                {connections.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {connections.map((friend: any) => (
+                            <div key={friend.id} className="flex items-center gap-3 p-3 bg-white rounded-lg border shadow-sm">
+                                <Avatar className="h-12 w-12">
+                                    <AvatarImage src={friend.avatar_url} />
+                                    <AvatarFallback>{friend.full_name?.[0]}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="font-medium text-gray-900">{friend.full_name}</p>
+                                    <p className="text-xs text-muted-foreground">{friend.headline || "Thành viên"}</p>
+                                    <a href={`/profile/${friend.id}`} className="text-xs text-teal-600 hover:underline">
+                                        Xem hồ sơ
+                                    </a>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-gray-500">Chưa có kết nối nào.</p>
+                )}
             </div>
         </div>
     );
