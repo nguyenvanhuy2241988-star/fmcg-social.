@@ -31,7 +31,7 @@ export default async function Home() {
   }));
 
   // 3. Fetch Pending Connection Requests
-  let pendingRequests = [];
+  let pendingRequests: any[] = [];
   if (user) {
     const { data } = await supabase
       .from('connections')
