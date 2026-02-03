@@ -83,9 +83,50 @@ export async function applyForJob(jobId: string) {
         return { error: "Failed to apply" };
     }
 
-    // Optional: Create notification for recruiter (we can add this later)
-    // const { createNotification } = await import('./actions_notifications');
-    // ...
+    // Notify Recruiter
+    // Fetch job details to get recruiter_id
+    const { data: job } = await supabase.from('jobs').select('recruiter_id, title').eq('id', jobId).single();
+    if (job && job.recruiter_id !== user.id) {
+        const { createNotification } = await import('./actions_notifications');
+        await createNotification(job.recruiter_id, 'job_application', jobId); // New notification type: job_application
+    }
 
     revalidatePath(`/jobs/${jobId}`);
+}
+
+export async function getJobApplications(jobId: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return [];
+
+    // Verify if user is the recruiter for this job
+    const { data: job } = await supabase
+        .from('jobs')
+        .select('recruiter_id')
+        .eq('id', jobId)
+        .single();
+
+    if (!job || job.recruiter_id !== user.id) return [];
+
+    const { data: applications, error } = await supabase
+        .from('job_applications')
+        .select(`
+            *,
+            applicant:applicant_id (
+                id,
+                full_name,
+                avatar_url,
+                headline
+            )
+        `)
+        .eq('job_id', jobId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error("Error fetching applications:", error);
+        return [];
+    }
+
+    return applications || [];
 }

@@ -6,7 +6,7 @@ import { MapPin, DollarSign, Briefcase, Calendar, Building, ArrowLeft } from "lu
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
-import { applyForJob } from "@/app/actions_jobs"; // We will add this action next
+import { applyForJob, getJobApplications } from "@/app/actions_jobs"; // We will add this action next
 import { notFound } from "next/navigation";
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -36,15 +36,22 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     // Check if current user has already applied
     const { data: { user } } = await supabase.auth.getUser();
     let hasApplied = false;
+    let isRecruiter = false;
+    let applications: any[] = [];
 
     if (user) {
-        const { data: application } = await supabase
-            .from('job_applications')
-            .select('id')
-            .eq('job_id', id)
-            .eq('applicant_id', user.id)
-            .single();
-        if (application) hasApplied = true;
+        if (user.id === job.recruiter_id) {
+            isRecruiter = true;
+            applications = await getJobApplications(id);
+        } else {
+            const { data: application } = await supabase
+                .from('job_applications')
+                .select('id')
+                .eq('job_id', id)
+                .eq('applicant_id', user.id)
+                .single();
+            if (application) hasApplied = true;
+        }
     }
 
     return (
@@ -135,6 +142,56 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                             </div>
                         )}
                     </div>
+
+                    {/* Recruiter View: Applications List */}
+                    {isRecruiter && (
+                        <div className="bg-white p-6 rounded-xl border shadow-sm space-y-6 ring-2 ring-teal-100">
+                            <div className="flex items-center justify-between">
+                                <h3 className="font-bold text-gray-900 text-lg">Danh sách Ứng viên ({applications.length})</h3>
+                                <Badge variant="secondary" className="bg-teal-50 text-teal-700">Dành cho Nhà tuyển dụng</Badge>
+                            </div>
+
+                            {applications.length > 0 ? (
+                                <div className="space-y-4">
+                                    {applications.map((app) => (
+                                        <div key={app.id} className="flex items-start gap-4 p-4 rounded-lg border bg-gray-50 hover:bg-white transition-colors">
+                                            <Avatar className="h-10 w-10 border">
+                                                <AvatarImage src={app.applicant?.avatar_url} />
+                                                <AvatarFallback>{app.applicant?.full_name?.[0]}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="flex-1">
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <Link href={`/profile/${app.applicant_id}`} className="font-bold text-gray-900 hover:underline">
+                                                            {app.applicant?.full_name}
+                                                        </Link>
+                                                        <p className="text-xs text-muted-foreground">{app.applicant?.headline || "Ứng viên tìm việc"}</p>
+                                                    </div>
+                                                    <span className="text-xs text-gray-400">
+                                                        {formatDistanceToNow(new Date(app.created_at), { addSuffix: true, locale: vi })}
+                                                    </span>
+                                                </div>
+                                                <div className="mt-3 flex gap-2">
+                                                    <Button size="sm" variant="default" className="bg-teal-600 hover:bg-teal-700 h-8 text-xs">
+                                                        Liên hệ ngay
+                                                    </Button>
+                                                    <Link href={`/profile/${app.applicant_id}`}>
+                                                        <Button size="sm" variant="outline" className="h-8 text-xs">
+                                                            Xem hồ sơ
+                                                        </Button>
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-8 text-gray-500 italic">
+                                    Chưa có ứng viên nào nộp hồ sơ.
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Sidebar: Recruiter Info */}
