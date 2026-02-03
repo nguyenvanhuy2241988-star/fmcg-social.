@@ -71,9 +71,11 @@ export default async function JobsPage() {
                                                 Đăng bởi <span className="font-medium text-gray-700">{job.recruiter?.full_name}</span>
                                             </span>
                                             <div className="ml-auto">
-                                                <Button size="sm" variant="outline" className="h-8 rounded-full">
-                                                    Xem chi tiết
-                                                </Button>
+                                                <Link href={`/jobs/${job.id}`}>
+                                                    <Button size="sm" variant="outline" className="h-8 rounded-full hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200">
+                                                        Xem chi tiết
+                                                    </Button>
+                                                </Link>
                                             </div>
                                         </div>
                                     </div>

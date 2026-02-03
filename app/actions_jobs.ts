@@ -62,3 +62,30 @@ export async function createJob(prevState: any, formData: FormData) {
     revalidatePath('/jobs');
     redirect('/jobs');
 }
+
+export async function applyForJob(jobId: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { error: "User not logged in" };
+
+    const { error } = await supabase
+        .from('job_applications')
+        .insert({
+            job_id: jobId,
+            applicant_id: user.id,
+            status: 'pending'
+        });
+
+    if (error) {
+        // Handle duplicate application or other errors
+        console.error("Application error:", error);
+        return { error: "Failed to apply" };
+    }
+
+    // Optional: Create notification for recruiter (we can add this later)
+    // const { createNotification } = await import('./actions_notifications');
+    // ...
+
+    revalidatePath(`/jobs/${jobId}`);
+}
