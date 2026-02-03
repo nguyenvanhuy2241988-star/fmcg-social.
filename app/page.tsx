@@ -1,11 +1,13 @@
 import PostCard from "@/components/feed/PostCard";
 import CreatePost from "@/components/feed/CreatePost";
 import { createClient } from "@/utils/supabase/server";
+import { RequestItem } from "@/components/feed/RequestItem";
 
 export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  // 1. Fetch Posts
   const { data: posts } = await supabase
     .from('posts')
     .select(`
@@ -21,11 +23,31 @@ export default async function Home() {
     `)
     .order('created_at', { ascending: false });
 
-  // Add has_liked field
+  // 2. Add has_liked field
   const formattedPosts = posts?.map((post) => ({
     ...post,
     has_liked: post.likes.some((like: any) => like.user_id === user?.id),
+    author_id: post.author_id
   }));
+
+  // 3. Fetch Pending Connection Requests
+  let pendingRequests = [];
+  if (user) {
+    const { data } = await supabase
+      .from('connections')
+      .select(`
+        requester:requester_id (
+          id,
+          full_name,
+          avatar_url,
+          headline
+        )
+      `)
+      .eq('receiver_id', user.id)
+      .eq('status', 'pending');
+
+    pendingRequests = data || [];
+  }
 
   return (
     <div className="container py-6 grid md:grid-cols-[1fr_2fr_1fr] gap-6">
@@ -73,8 +95,25 @@ export default async function Home() {
       {/* Sidebar Right */}
       <aside className="hidden md:block space-y-4">
         <div className="rounded-lg border bg-card p-4">
-          <h3 className="font-bold mb-2">Gợi ý kết nối</h3>
-          <p className="text-sm text-muted-foreground">Chưa có gợi ý nào.</p>
+          <h3 className="font-bold mb-4 flex items-center gap-2">
+            <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs">
+              {pendingRequests.length}
+            </span>
+            Lời mời kết nối
+          </h3>
+
+          {pendingRequests.length > 0 ? (
+            pendingRequests.map((req: any) => (
+              <RequestItem key={req.requester.id} request={req} />
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground">Chưa có lời mời nào.</p>
+          )}
+
+          <div className="mt-6 border-t pt-4">
+            <h3 className="font-bold mb-2 text-sm text-gray-500 uppercase">Gợi ý kết nối</h3>
+            <p className="text-sm text-muted-foreground">Tính năng đang phát triển...</p>
+          </div>
         </div>
       </aside>
     </div>
