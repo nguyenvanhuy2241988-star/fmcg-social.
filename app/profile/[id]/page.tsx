@@ -63,9 +63,28 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                             </AvatarFallback>
                         </Avatar>
 
+                        import {getConnectionStatus} from "@/app/actions_connections";
+                        import {ConnectButton} from "@/components/profile/ConnectButton";
+
+                        // ... inside component ...
+                        // 4. Get Connection Status
+                        let connectionStatus = 'none';
+                        if (!isOwner && currentUser) {
+                            connectionStatus = await getConnectionStatus(profile.id);
+    }
+
+                        return (
+                        // ...
                         <div className="flex gap-2 mb-1">
-                            {isOwner && (
+                            {isOwner ? (
                                 <ProfileEditWrapper profile={profile} />
+                            ) : (
+                                currentUser && (
+                                    <ConnectButton
+                                        targetUserId={profile.id}
+                                        initialStatus={connectionStatus as any}
+                                    />
+                                )
                             )}
                             <Button variant="outline" size="sm">
                                 <Share2 className="h-4 w-4 mr-2" /> Share
