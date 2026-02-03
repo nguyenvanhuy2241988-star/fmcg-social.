@@ -8,12 +8,12 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     const { users, posts } = await searchGlobal(q);
 
     return (
-        <div className="w-full max-w-[1920px] mx-auto px-4 lg:px-8 py-6">
-            <h1 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">
+        <div className="container max-w-6xl mx-auto px-4 py-6">
+            <h1 className="text-xl font-bold mb-6 text-gray-900 border-b pb-4">
                 Kết quả tìm kiếm cho <span className="text-teal-600">"{q}"</span>
             </h1>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6 items-start">
                 {/* Left Column: Users Results */}
                 <section className="space-y-4">
                     <div className="flex items-center justify-between">

@@ -22,8 +22,8 @@ export default async function MessagesLayout({ params, searchParams }: { params:
     const activePartner = connections.find((c: any) => c.id === activePartnerId);
 
     return (
-        <div className="w-full h-[calc(100vh-64px)] overflow-hidden bg-white">
-            <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] h-full border rounded-xl overflow-hidden shadow-sm bg-white">
+        <div className="container max-w-6xl mx-auto py-4 h-[calc(100vh-64px)]">
+            <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] h-full border rounded-xl overflow-hidden shadow-sm bg-white ring-1 ring-gray-200">
                 {/* Left Sidebar: Conversation List */}
                 <div className="border-r flex flex-col bg-gray-50">
                     <div className="p-4 border-b bg-white">
