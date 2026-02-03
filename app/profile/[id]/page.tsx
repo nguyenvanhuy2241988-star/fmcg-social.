@@ -126,7 +126,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                         </div>
                         <div className="flex items-center text-gray-600">
                             <Phone className="h-5 w-5 mr-3 text-gray-400" />
-                            <span>{profile.phone || "Chưa cập nhật SĐT"}</span>
+                            <span>
+                                {(isOwner || connectionStatus === 'accepted')
+                                    ? (profile.phone || "Chưa cập nhật SĐT")
+                                    : "Kết nối để xem SĐT"
+                                }
+                            </span>
                         </div>
                         <div className="flex items-center text-gray-600 col-span-2">
                             <Briefcase className="h-5 w-5 mr-3 text-gray-400" />
