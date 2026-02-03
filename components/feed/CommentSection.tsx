@@ -33,7 +33,9 @@ import { createClient } from "@/utils/supabase/client";
 
 export default function CommentSection({ postId, currentUser }: CommentSectionProps) {
     const [comments, setComments] = useState<Comment[]>([]);
-    // ... other states
+    const [newComment, setNewComment] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSending, setIsSending] = useState(false);
 
     useEffect(() => {
         loadComments();
