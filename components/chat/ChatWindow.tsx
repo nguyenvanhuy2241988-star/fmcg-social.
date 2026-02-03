@@ -37,20 +37,22 @@ export default function ChatWindow({ currentUser, partner }: ChatWindowProps) {
 
     // 2. Subscribe to Realtime changes
     useEffect(() => {
+        // Unique channel name for this conversation pair
+        // const channelName = `chat:${currentUser.id}-${partner.id}`; 
+        // Actually, let's use a unique name based on sorted IDs to ensure both parties use same channel?
+        // But postgres_changes doesn't care about channel name for data, it cares about the DB event.
+        // So channel name just needs to be unique per client subscription.
         const channel = supabase
-            .channel(`chat:${currentUser.id}-${partner.id}`)
+            .channel('any_message_insert') // Changed to generic name
             .on(
                 'postgres_changes',
                 {
                     event: 'INSERT',
                     schema: 'public',
                     table: 'messages',
-                    // Listen to all messages and filter client-side for security and simplicity
-                    // Filter: sender_id=eq.partner.id OR sender_id=eq.currentUser.id
-                    // Note: Supabase realtime filters are limited.
-                    // Best to filter inside callback.
                 },
                 (payload) => {
+                    console.log('Realtime payload received:', payload); // Debug log
                     const newMsg = payload.new as any
 
                     // Logic to ensure we only add messages relevant to THIS conversation
@@ -60,14 +62,21 @@ export default function ChatWindow({ currentUser, partner }: ChatWindowProps) {
 
                     if (isRelevant) {
                         setMessages((prev) => {
-                            // Deduplicate just in case
+                            // Deduplicate
                             if (prev.some(m => m.id === newMsg.id)) return prev;
                             return [...prev, newMsg];
                         })
+                        // Scroll to bottom immediately
+                        setTimeout(scrollToBottom, 100);
                     }
                 }
             )
-            .subscribe()
+            .subscribe((status) => {
+                console.log('Subscription status:', status);
+                if (status === 'SUBSCRIBED') {
+                    // console.log('Ready to receive messages');
+                }
+            })
 
         return () => {
             supabase.removeChannel(channel)
