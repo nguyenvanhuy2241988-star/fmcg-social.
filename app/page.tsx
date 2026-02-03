@@ -51,7 +51,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="container py-6 grid md:grid-cols-[1fr_2fr_1fr] gap-6">
+    <div className="w-full max-w-[1920px] mx-auto px-4 lg:px-6 py-6 grid md:grid-cols-[280px_1fr_320px] gap-6">
       {/* Sidebar Left */}
       <aside className="hidden md:block space-y-4">
         {/* 1. Identity Card */}
