@@ -23,7 +23,8 @@ export default function ChatWindow({ currentUser, partner }: ChatWindowProps) {
     const [newMessage, setNewMessage] = useState('')
     const [isSending, setIsSending] = useState(false)
     const scrollRef = useRef<HTMLDivElement>(null)
-    const supabase = createClient()
+    // Use useState to hold the client instance so it doesn't recreate on re-renders
+    const [supabase] = useState(() => createClient())
 
     // 1. Fetch initial messages
     useEffect(() => {
@@ -44,17 +45,25 @@ export default function ChatWindow({ currentUser, partner }: ChatWindowProps) {
                     event: 'INSERT',
                     schema: 'public',
                     table: 'messages',
-                    filter: `sender_id=in.(${currentUser.id},${partner.id})` // Listen for messages from either party (technically we need complex filter or just listen to all and filter client side if needed, but RLS handles security)
-                    // Simplified filter: actually we can just listen to table messages and filter roughly
+                    // Listen to all messages and filter client-side for security and simplicity
+                    // Filter: sender_id=eq.partner.id OR sender_id=eq.currentUser.id
+                    // Note: Supabase realtime filters are limited.
+                    // Best to filter inside callback.
                 },
                 (payload) => {
                     const newMsg = payload.new as any
-                    // Check if this message belongs to this conversation
-                    if (
+
+                    // Logic to ensure we only add messages relevant to THIS conversation
+                    const isRelevant =
                         (newMsg.sender_id === currentUser.id && newMsg.receiver_id === partner.id) ||
-                        (newMsg.sender_id === partner.id && newMsg.receiver_id === currentUser.id)
-                    ) {
-                        setMessages((prev) => [...prev, newMsg])
+                        (newMsg.sender_id === partner.id && newMsg.receiver_id === currentUser.id);
+
+                    if (isRelevant) {
+                        setMessages((prev) => {
+                            // Deduplicate just in case
+                            if (prev.some(m => m.id === newMsg.id)) return prev;
+                            return [...prev, newMsg];
+                        })
                     }
                 }
             )
@@ -66,10 +75,12 @@ export default function ChatWindow({ currentUser, partner }: ChatWindowProps) {
     }, [currentUser.id, partner.id, supabase])
 
     // 3. Auto-scroll to bottom
+    const messagesEndRef = useRef<HTMLDivElement>(null)
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollIntoView({ behavior: 'smooth' })
-        }
+        scrollToBottom()
     }, [messages])
 
     const handleSend = async () => {
@@ -113,8 +124,8 @@ export default function ChatWindow({ currentUser, partner }: ChatWindowProps) {
                             <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                                 <div
                                     className={`max-w-[70%] rounded-lg px-4 py-2 text-sm ${isMe
-                                            ? 'bg-teal-600 text-white'
-                                            : 'bg-gray-100 text-gray-800'
+                                        ? 'bg-teal-600 text-white'
+                                        : 'bg-gray-100 text-gray-800'
                                         }`}
                                 >
                                     {msg.content}
@@ -122,7 +133,7 @@ export default function ChatWindow({ currentUser, partner }: ChatWindowProps) {
                             </div>
                         )
                     })}
-                    <div ref={scrollRef} />
+                    <div ref={messagesEndRef} />
                 </div>
             </ScrollArea>
 
