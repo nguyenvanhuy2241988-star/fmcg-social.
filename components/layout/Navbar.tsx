@@ -1,53 +1,58 @@
-import Link from "next/link";
-import { Bell, Briefcase, Home, MessageSquare, Search, Users } from "lucide-react";
+
+import Link from "next/link"
+import { Search, Bell, MessageSquare, Home, Users, Briefcase } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function Navbar() {
     return (
-        <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-14 items-center justify-between">
-                <div className="flex items-center gap-6">
-                    <Link href="/" className="mr-6 flex items-center space-x-2">
-                        <span className="hidden font-bold sm:inline-block text-primary text-xl">
-                            FMCG<span className="text-foreground">Social</span>
-                        </span>
-                    </Link>
-                    <div className="relative hidden w-full max-w-sm sm:flex items-center">
-                        <Search className="absolute left-2.5 h-4 w-4 text-muted-foreground" />
-                        <input
-                            type="search"
-                            placeholder="Tìm kiếm..."
-                            className="flex h-9 w-64 rounded-md border border-input bg-transparent px-3 py-1 pl-9 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                        />
+        <nav className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+            <div className="container mx-auto flex h-16 items-center justify-between px-4">
+                {/* Logo */}
+                <Link href="/" className="flex items-center gap-2 group">
+                    <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 transition-transform group-hover:scale-105">
+                        <span className="text-white font-bold text-xl">F</span>
                     </div>
+                    <span className="text-xl font-bold bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent hidden sm:block">
+                        FMCGSocial
+                    </span>
+                </Link>
+
+                {/* Search Bar - Minimalist */}
+                <div className="hidden md:flex relative w-1/3 max-w-sm items-center">
+                    <Search className="absolute left-3 h-4 w-4 text-gray-400" />
+                    <input
+                        type="search"
+                        placeholder="Tìm kiếm nhân tài, cơ hội..."
+                        className="w-full h-10 pl-10 pr-4 rounded-full bg-slate-100 border-transparent focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none text-sm placeholder:text-gray-400"
+                    />
                 </div>
 
-                <div className="flex items-center space-x-4">
-                    <NavItem href="/" icon={Home} label="Trang chủ" active />
-                    <NavItem href="/network" icon={Users} label="Mạng lưới" />
-                    <NavItem href="/jobs" icon={Briefcase} label="Việc làm" />
-                    <NavItem href="/messages" icon={MessageSquare} label="Tin nhắn" />
-                    <NavItem href="/notifications" icon={Bell} label="Thông báo" />
+                {/* Right Section */}
+                <div className="flex items-center gap-1 sm:gap-2">
+                    <Button variant="ghost" size="icon" className="text-gray-500 hover:text-primary hover:bg-primary/5 hidden sm:flex">
+                        <Home className="h-5 w-5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="text-gray-500 hover:text-primary hover:bg-primary/5 hidden sm:flex">
+                        <Users className="h-5 w-5" />
+                    </Button>
 
-                    <div className="ml-4 h-8 w-8 rounded-full bg-secondary flex items-center justify-center overflow-hidden border">
-                        {/* Avatar Placeholder */}
-                        <span className="text-xs font-bold">ME</span>
-                    </div>
+                    <div className="h-6 w-px bg-gray-200 mx-2 hidden sm:block"></div>
+
+                    <Button variant="ghost" size="icon" className="text-gray-500 hover:text-primary hover:bg-primary/5 relative">
+                        <MessageSquare className="h-5 w-5" />
+                        <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+                    </Button>
+                    <Button variant="ghost" size="icon" className="text-gray-500 hover:text-primary hover:bg-primary/5">
+                        <Bell className="h-5 w-5" />
+                    </Button>
+
+                    <Avatar className="h-9 w-9 border-2 border-white shadow-sm cursor-pointer hover:border-primary transition-colors ml-2">
+                        <AvatarImage src="https://github.com/shadcn.png" />
+                        <AvatarFallback className="bg-primary/10 text-primary font-bold">ME</AvatarFallback>
+                    </Avatar>
                 </div>
             </div>
         </nav>
-    );
-}
-
-function NavItem({ href, icon: Icon, label, active }: { href: string; icon: any; label: string; active?: boolean }) {
-    return (
-        <Link
-            href={href}
-            className={`flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors hover:text-primary ${active ? "text-primary" : "text-muted-foreground"
-                }`}
-        >
-            <Icon className="h-5 w-5" />
-            <span className="hidden md:inline">{label}</span>
-            {active && <span className="absolute bottom-0 h-[2px] w-full bg-primary" />}
-        </Link>
-    );
+    )
 }
