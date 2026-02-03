@@ -53,20 +53,60 @@ export default async function Home() {
     <div className="container py-6 grid md:grid-cols-[1fr_2fr_1fr] gap-6">
       {/* Sidebar Left */}
       <aside className="hidden md:block space-y-4">
-        <div className="rounded-lg border bg-card p-4">
-          <h3 className="font-bold mb-2">Bộ lọc</h3>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            {user && (
-              <li className="font-medium text-black">
-                <a href={`/profile/${user.id}`} className="flex items-center gap-2 hover:text-teal-600">
-                  <span>👤</span> Hồ sơ của tôi
-                </a>
-              </li>
-            )}
-            <li className="hover:text-primary cursor-pointer">Tất cả</li>
-            <li className="hover:text-primary cursor-pointer">Việc làm Sales</li>
-            <li className="hover:text-primary cursor-pointer">Việc làm Marketing</li>
-            <li className="hover:text-primary cursor-pointer">Chia sẻ kiến thức</li>
+        {/* 1. Identity Card */}
+        {user && (
+          <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+            <div className="h-16 bg-gradient-to-r from-teal-500 to-emerald-600"></div>
+            <div className="px-4 pb-4 -mt-8 text-center">
+              <Link href={`/profile/${user.id}`}>
+                <div className="inline-block p-1 bg-white rounded-full mb-2">
+                  <div className="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden border">
+                    {user.user_metadata?.avatar_url ? (
+                      <img src={user.user_metadata.avatar_url} alt="Ava" className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="text-xl font-bold text-gray-500">Me</span>
+                    )}
+                  </div>
+                </div>
+                <h3 className="font-bold text-gray-900 hover:text-teal-600 transition-colors">
+                  {user.user_metadata?.full_name || "Thành viên mới"}
+                </h3>
+              </Link>
+              <p className="text-xs text-gray-500 mb-3">{user.user_metadata?.headline || "Chào mừng bạn"}</p>
+
+              <div className="grid grid-cols-2 gap-2 border-t pt-3 text-xs">
+                <div className="text-center">
+                  <span className="block font-bold text-gray-900">120</span>
+                  <span className="text-gray-500">Xem hồ sơ</span>
+                </div>
+                <div className="text-center border-l">
+                  <span className="block font-bold text-gray-900">{pendingRequests.length}</span>
+                  <span className="text-gray-500">Lời mời</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 2. Filters / Navigation */}
+        <div className="rounded-lg border bg-white p-4 shadow-sm">
+          <h3 className="font-bold mb-3 text-sm uppercase text-gray-400">Khám phá</h3>
+          <ul className="space-y-1 text-sm text-gray-600">
+            <li className="flex items-center gap-2 p-2 rounded hover:bg-teal-50 hover:text-teal-700 cursor-pointer font-medium bg-teal-50/50 text-teal-700">
+              <span>📰</span> Bảng tin chung
+            </li>
+            <li className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer">
+              <span>💼</span> Việc làm Sales
+            </li>
+            <li className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer">
+              <span>📈</span> Việc làm Marketing
+            </li>
+            <li className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer">
+              <span>📚</span> Chia sẻ kiến thức
+            </li>
+            <li className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer">
+              <span>🔖</span> Đã lưu
+            </li>
           </ul>
         </div>
       </aside>

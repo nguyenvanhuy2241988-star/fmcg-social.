@@ -7,6 +7,8 @@ import ProfileEditWrapper from "@/components/profile/ProfileEditWrapper";
 import { getConnectionStatus, getConnections } from "@/app/actions_connections";
 import { ConnectButton } from "@/components/profile/ConnectButton";
 import Link from "next/link";
+import PostCard from "@/components/feed/PostCard";
+import { getUserPosts } from "@/app/actions_posts";
 
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient();
@@ -64,22 +66,35 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     const currentStatus = profile.availability_status as keyof typeof statusLabels || 'open_to_work';
 
     return (
-        <div className="container max-w-4xl py-8">
-            {/* PROFILE CARD */}
-            <div className="bg-white rounded-xl shadow-lg border overflow-hidden relative">
-                {/* Cover Background (Teal Gradient) */}
-                <div className="h-40 bg-gradient-to-r from-teal-500 to-emerald-600"></div>
+    // 5. Fetch User's Posts
+    const userPosts = await getUserPosts(profile.id);
 
-                <div className="px-6 pb-6">
-                    <div className="flex justify-between items-end -mt-12 mb-4">
-                        <Avatar className="h-24 w-24 border-4 border-white shadow-md">
+    // Import helper (we need to ensure this import exists at top of file, so I will add it via another edit or just assume/add it here if I could)
+    // Actually I will rewrite the return statement to use grid layout
+
+    return (
+        <div className="container max-w-6xl py-8">
+            {/* 1. COVER & HEADER SECTION */}
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden relative mb-6">
+                <div className="h-48 bg-gradient-to-r from-teal-600 to-emerald-600"></div>
+                <div className="px-8 pb-6">
+                    <div className="flex flex-col md:flex-row items-start md:items-end -mt-16 mb-4 gap-6">
+                        <Avatar className="h-32 w-32 border-4 border-white shadow-lg bg-white">
                             <AvatarImage src={profile.avatar_url} />
-                            <AvatarFallback className="text-2xl font-bold bg-teal-100 text-teal-800">
+                            <AvatarFallback className="text-4xl font-bold bg-teal-50 text-teal-800">
                                 {profile.full_name?.[0] || "U"}
                             </AvatarFallback>
                         </Avatar>
 
-                        <div className="flex gap-2 mb-1">
+                        <div className="flex-1 mb-2">
+                            <h1 className="text-3xl font-bold text-gray-900 mb-1">{profile.full_name}</h1>
+                            <p className="text-lg text-teal-700 font-medium mb-1">{profile.headline || "Thành viên Cộng đồng FMCG"}</p>
+                            <div className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${statusColors[currentStatus]}`}>
+                                {statusLabels[currentStatus]}
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2 mb-4 md:mb-2">
                             {isOwner ? (
                                 <ProfileEditWrapper profile={profile} />
                             ) : (
@@ -101,87 +116,98 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                                     </>
                                 )
                             )}
-                            <Button variant="outline" size="sm">
-                                <Share2 className="h-4 w-4 mr-2" /> Share
-                            </Button>
                         </div>
-                    </div>
-
-                    {/* Name & Headline */}
-                    <div className="mb-6">
-                        <div className="flex items-center gap-3 mb-1">
-                            <h1 className="text-2xl font-bold text-gray-900">{profile.full_name}</h1>
-                            <span className={`text-xs px-2 py-1 rounded-full border font-medium ${statusColors[currentStatus]}`}>
-                                {statusLabels[currentStatus]}
-                            </span>
-                        </div>
-                        <p className="text-lg text-teal-700 font-medium">{profile.headline || "Chưa cập nhật chức danh"}</p>
-                    </div>
-
-                    {/* Info Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div className="flex items-center text-gray-600">
-                            <MapPin className="h-5 w-5 mr-3 text-gray-400" />
-                            <span>{profile.zone || "Chưa cập nhật khu vực"}</span>
-                        </div>
-                        <div className="flex items-center text-gray-600">
-                            <Phone className="h-5 w-5 mr-3 text-gray-400" />
-                            <span>
-                                {(isOwner || connectionStatus === 'accepted')
-                                    ? (profile.phone || "Chưa cập nhật SĐT")
-                                    : "Kết nối để xem SĐT"
-                                }
-                            </span>
-                        </div>
-                        <div className="flex items-center text-gray-600 col-span-2">
-                            <Briefcase className="h-5 w-5 mr-3 text-gray-400" />
-                            <div className="flex flex-wrap gap-2">
-                                {profile.categories?.length > 0 ? (
-                                    profile.categories.map((cat: string) => (
-                                        <span key={cat} className="bg-gray-100 px-2 py-1 rounded text-sm text-gray-700">
-                                            {cat}
-                                        </span>
-                                    ))
-                                ) : (
-                                    <span>Chưa cập nhật ngành hàng</span>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Call to Action (Fake for now) */}
-                    <div className="border-t pt-4 mt-6 flex justify-center">
-                        <p className="text-sm text-muted-foreground italic">
-                            "Kết nối với tôi để trao đổi cơ hội hợp tác!"
-                        </p>
                     </div>
                 </div>
             </div>
 
-            {/* Connections Section */}
-            <div className="mt-8">
-                <h3 className="text-xl font-bold mb-4">Mạng lưới kết nối ({connections.length})</h3>
-                {connections.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {connections.map((friend: any) => (
-                            <div key={friend.id} className="flex items-center gap-3 p-3 bg-white rounded-lg border shadow-sm">
-                                <Avatar className="h-12 w-12">
-                                    <AvatarImage src={friend.avatar_url} />
-                                    <AvatarFallback>{friend.full_name?.[0]}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p className="font-medium text-gray-900">{friend.full_name}</p>
-                                    <p className="text-xs text-muted-foreground">{friend.headline || "Thành viên"}</p>
-                                    <a href={`/profile/${friend.id}`} className="text-xs text-teal-600 hover:underline">
-                                        Xem hồ sơ
-                                    </a>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-6">
+                {/* 2. LEFT SIDEBAR: INTRO & PHOTOS & FRIENDS */}
+                <div className="space-y-6">
+                    {/* Intro Card */}
+                    <div className="bg-white rounded-xl shadow-sm border p-4">
+                        <h2 className="font-bold text-lg mb-4">Giới thiệu</h2>
+                        <div className="space-y-3 text-sm">
+                            <div className="flex items-center text-gray-700">
+                                <Briefcase className="h-5 w-5 mr-3 text-gray-400" />
+                                <span className="flex-1">{profile.headline || "--"}</span>
+                            </div>
+                            <div className="flex items-center text-gray-700">
+                                <MapPin className="h-5 w-5 mr-3 text-gray-400" />
+                                <span>{profile.zone || "Chưa cập nhật nơi ở"}</span>
+                            </div>
+                            <div className="flex items-center text-gray-700">
+                                <Phone className="h-5 w-5 mr-3 text-gray-400" />
+                                <span>
+                                    {(isOwner || connectionStatus === 'accepted')
+                                        ? (profile.phone || "Chưa cập nhật SĐT")
+                                        : "Kết bạn để xem SĐT"
+                                    }
+                                </span>
+                            </div>
+                            <div className="border-t pt-3 mt-2">
+                                <p className="text-gray-500 text-xs uppercase font-semibold mb-2">Ngành hàng quan tâm</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {profile.categories?.map((cat: string) => (
+                                        <span key={cat} className="bg-gray-100 px-2 py-1 rounded text-xs text-gray-700">{cat}</span>
+                                    ))}
                                 </div>
                             </div>
-                        ))}
+                        </div>
                     </div>
-                ) : (
-                    <p className="text-gray-500">Chưa có kết nối nào.</p>
-                )}
+
+                    {/* Friends Card */}
+                    <div className="bg-white rounded-xl shadow-sm border p-4">
+                        <div className="flex justify-between items-center mb-4">
+                            <div>
+                                <h2 className="font-bold text-lg">Bạn bè</h2>
+                                <p className="text-xs text-muted-foreground">{connections.length} người bạn</p>
+                            </div>
+                            <Link href="#" className="text-teal-600 text-sm hover:underline">Xem tất cả</Link>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                            {connections.slice(0, 9).map((friend) => (
+                                <Link key={friend.id} href={`/profile/${friend.id}`} className="block group">
+                                    <Avatar className="h-full w-full aspect-square rounded-lg border-0">
+                                        <AvatarImage src={friend.avatar_url} className="object-cover rounded-lg" />
+                                        <AvatarFallback className="rounded-lg">{friend.full_name?.[0]}</AvatarFallback>
+                                    </Avatar>
+                                    <p className="text-[10px] font-medium mt-1 truncate group-hover:underline">{friend.full_name}</p>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* 3. RIGHT COLUMN: POSTS FEED */}
+                <div className="space-y-4">
+                    {/* Create Post (Only for Owner) */}
+                    {isOwner && (
+                        <div className="bg-white rounded-xl shadow-sm border p-4 mb-4">
+                            <div className="flex gap-3">
+                                <Avatar>
+                                    <AvatarImage src={currentUser?.user_metadata?.avatar_url} />
+                                    <AvatarFallback>Me</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 bg-gray-100 rounded-full px-4 flex items-center text-gray-500 cursor-pointer hover:bg-gray-200 transition-colors">
+                                    Bạn đang nghĩ gì thế?
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <h3 className="font-bold text-lg px-1">Bài viết</h3>
+
+                    {userPosts.length > 0 ? (
+                        userPosts.map((post: any) => (
+                            <PostCard key={post.id} {...post} author_id={post.author_id} />
+                        ))
+                    ) : (
+                        <div className="bg-white rounded-xl shadow-sm border p-8 text-center text-muted-foreground">
+                            <p>Chưa có bài viết nào.</p>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
