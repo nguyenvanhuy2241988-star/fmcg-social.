@@ -14,9 +14,18 @@ export default async function Home() {
         full_name,
         headline,
         avatar_url
+      ),
+      likes (
+        user_id
       )
     `)
     .order('created_at', { ascending: false });
+
+  // Add has_liked field
+  const formattedPosts = posts?.map((post) => ({
+    ...post,
+    has_liked: post.likes.some((like: any) => like.user_id === user?.id),
+  }));
 
   return (
     <div className="container py-6 grid md:grid-cols-[1fr_2fr_1fr] gap-6">
@@ -39,14 +48,14 @@ export default async function Home() {
         <CreatePost user={user} />
 
         {/* Feed Items */}
-        {posts?.map((post) => (
+        {formattedPosts?.map((post) => (
           <PostCard
             key={post.id}
             {...post}
           />
         ))}
 
-        {!posts?.length && (
+        {!formattedPosts?.length && (
           <div className="text-center text-muted-foreground py-10">
             Chưa có bài viết nào. Hãy là người đầu tiên chia sẻ!
           </div>
