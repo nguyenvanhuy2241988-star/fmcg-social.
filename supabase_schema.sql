@@ -1,4 +1,8 @@
 -- 1. RESET (Xóa bảng cũ để tạo lại cho sạch)
+DROP TABLE IF EXISTS public.job_applications CASCADE;
+DROP TABLE IF EXISTS public.jobs CASCADE;
+DROP TABLE IF EXISTS public.notifications CASCADE;
+DROP TABLE IF EXISTS public.comments CASCADE;
 DROP TABLE IF EXISTS public.likes CASCADE;
 DROP TABLE IF EXISTS public.posts CASCADE;
 DROP TABLE IF EXISTS public.profiles CASCADE;
@@ -186,3 +190,26 @@ create policy "Users can apply"
 
 -- 12. Add to Realtime (Optional, maybe for recruiters)
 alter publication supabase_realtime add table public.job_applications;
+
+-- 13. REFERRAL SYSTEM (Phase 2)
+-- Thêm cột mã giới thiệu và người giới thiệu vào bảng profiles
+alter table public.profiles 
+add column if not exists referral_code text unique,
+add column if not exists referrer_id uuid references public.profiles(id);
+
+-- Hàm để tạo mã giới thiệu ngẫu nhiên (dùng cho user mới)
+create or replace function generate_referral_code()
+returns trigger as $$
+begin
+  -- Tạo mã random 8 ký tự (VD: A1B2C3D4)
+  new.referral_code := upper(substring(md5(random()::text) from 1 for 8));
+  return new;
+end;
+$$ language plpgsql;
+
+-- Trigger tự động tạo mã khi insert profile mới (nếu chưa có)
+-- create trigger on_auth_user_created_referral
+--   before insert on public.profiles
+--   for each row execute procedure generate_referral_code();
+-- (Note: Ta sẽ xử lý logic tạo mã ở server side hoặc trigger tùy chọn, 
+-- để đơn giản ta có thể update thủ công hoặc qua API khi user bấm "Tạo mã")
