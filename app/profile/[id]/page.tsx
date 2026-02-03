@@ -17,7 +17,17 @@ export default async function ProfilePage({ params }: { params: { id: string } }
         .single();
 
     if (error || !profile) {
-        return <div className="container py-10 text-center">Không tìm thấy hồ sơ người dùng.</div>;
+        console.error("Profile Error:", error);
+        return (
+            <div className="container py-10 text-center space-y-4">
+                <p className="text-lg text-red-500">Không tìm thấy hồ sơ người dùng.</p>
+                <div className="p-4 bg-gray-100 rounded text-left inline-block max-w-lg overflow-auto text-xs font-mono">
+                    <p>Debug Info:</p>
+                    <p>ID: {id}</p>
+                    <p>Error: {JSON.stringify(error, null, 2)}</p>
+                </div>
+            </div>
+        );
     }
 
     // 2. Check if current user is owner
