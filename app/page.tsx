@@ -34,6 +34,13 @@ export default async function Home() {
         <div className="rounded-lg border bg-card p-4">
           <h3 className="font-bold mb-2">Bộ lọc</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
+            {user && (
+              <li className="font-medium text-black">
+                <a href={`/profile/${user.id}`} className="flex items-center gap-2 hover:text-teal-600">
+                  <span>👤</span> Hồ sơ của tôi (Talent Card)
+                </a>
+              </li>
+            )}
             <li className="hover:text-primary cursor-pointer">Tất cả</li>
             <li className="hover:text-primary cursor-pointer">Việc làm Sales</li>
             <li className="hover:text-primary cursor-pointer">Việc làm Marketing</li>
