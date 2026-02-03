@@ -76,10 +76,35 @@ create policy "Users can unlike posts"
   on likes for delete
   using ( auth.uid() = user_id );
 
--- 5. BẬT REALTIME (Để chat và hiện thông báo)
+-- 6. TẠO BẢNG COMMENTS (Bình luận)
+create table public.comments (
+  id uuid default gen_random_uuid() primary key,
+  content text not null,
+  post_id uuid references public.posts(id) on delete cascade not null,
+  user_id uuid references public.profiles(id) not null,
+  created_at timestamp with time zone default now()
+);
+
+-- Bật bảo mật cho Comments
+alter table public.comments enable row level security;
+
+create policy "Comments are viewable by everyone"
+  on comments for select
+  using ( true );
+
+create policy "Authenticated users can comment"
+  on comments for insert
+  with check ( auth.role() = 'authenticated' );
+
+create policy "Users can delete own comments"
+  on comments for delete
+  using ( auth.uid() = user_id );
+
+-- 7. BẬT REALTIME (Để chat và hiện thông báo)
 begin;
   drop publication if exists supabase_realtime;
   create publication supabase_realtime;
 commit;
 alter publication supabase_realtime add table public.posts;
 alter publication supabase_realtime add table public.likes;
+alter publication supabase_realtime add table public.comments;

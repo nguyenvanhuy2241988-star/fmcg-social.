@@ -29,10 +29,22 @@ interface PostProps {
     } | null;
 }
 
+import CommentSection from "./CommentSection";
+import { useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
+
 export default function PostCard({ id, content, image_url, created_at, likes_count, comments_count, has_liked, author_id, profiles }: PostProps) {
     const [isLiked, setIsLiked] = useState(has_liked);
     const [likes, setLikes] = useState(likes_count);
     const [isAnimating, setIsAnimating] = useState(false);
+    const [showComments, setShowComments] = useState(false);
+    const [currentUser, setCurrentUser] = useState<any>(null);
+
+    useEffect(() => {
+        // Fetch current user for comment avatar
+        const supabase = createClient();
+        supabase.auth.getUser().then(({ data }) => setCurrentUser(data.user));
+    }, []);
 
     const handleLike = async () => {
         // Optimistic update
@@ -84,27 +96,40 @@ export default function PostCard({ id, content, image_url, created_at, likes_cou
                     </div>
                 )}
             </CardContent>
-            <CardFooter className="flex items-center justify-between p-2">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className={cn(
-                        "flex-1 gap-2 hover:text-red-500 transition-colors",
-                        isLiked ? "text-red-500" : "text-muted-foreground"
-                    )}
-                    onClick={handleLike}
-                >
-                    <Heart className={cn("h-4 w-4", isLiked && "fill-current", isAnimating && "animate-bounce")} />
-                    <span className="text-xs">{likes}</span>
-                </Button>
-                <Button variant="ghost" size="sm" className="flex-1 gap-2 text-muted-foreground">
-                    <MessageCircle className="h-4 w-4" />
-                    <span className="text-xs">{comments_count || 0}</span>
-                </Button>
-                <Button variant="ghost" size="sm" className="flex-1 gap-2 text-muted-foreground">
-                    <Share2 className="h-4 w-4" />
-                    <span className="text-xs">Share</span>
-                </Button>
+            <CardFooter className="flex flex-col items-stretch p-2">
+                <div className="flex items-center justify-between w-full mb-2">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className={cn(
+                            "flex-1 gap-2 hover:text-red-500 transition-colors",
+                            isLiked ? "text-red-500" : "text-muted-foreground"
+                        )}
+                        onClick={handleLike}
+                    >
+                        <Heart className={cn("h-4 w-4", isLiked && "fill-current", isAnimating && "animate-bounce")} />
+                        <span className="text-xs">{likes}</span>
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className={cn("flex-1 gap-2", showComments ? "text-teal-600 bg-teal-50" : "text-muted-foreground")}
+                        onClick={() => setShowComments(!showComments)}
+                    >
+                        <MessageCircle className="h-4 w-4" />
+                        <span className="text-xs">{comments_count || "Bình luận"}</span>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="flex-1 gap-2 text-muted-foreground">
+                        <Share2 className="h-4 w-4" />
+                        <span className="text-xs">Chia sẻ</span>
+                    </Button>
+                </div>
+
+                {showComments && (
+                    <div className="w-full animate-in slide-in-from-top-2 duration-200">
+                        <CommentSection postId={id} currentUser={currentUser} />
+                    </div>
+                )}
             </CardFooter>
         </Card>
     );
