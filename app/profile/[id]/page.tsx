@@ -1,9 +1,11 @@
+
 import { createClient } from "@/utils/supabase/server";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-// Badge removed
 import { MapPin, Phone, Briefcase, Calendar, Edit, Share2 } from "lucide-react";
-import ProfileEditWrapper from "@/components/profile/ProfileEditWrapper"; // Wrapper to handle client-side modal state
+import ProfileEditWrapper from "@/components/profile/ProfileEditWrapper";
+import { getConnectionStatus } from "@/app/actions_connections";
+import { ConnectButton } from "@/components/profile/ConnectButton";
 
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient();
@@ -34,7 +36,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     const { data: { user: currentUser } } = await supabase.auth.getUser();
     const isOwner = currentUser?.id === profile.id;
 
-    // 3. Status Color Logic
+    // 3. Get Connection Status
+    let connectionStatus = 'none';
+    if (!isOwner && currentUser) {
+        connectionStatus = await getConnectionStatus(profile.id);
+    }
+
+    // 4. Status Color Logic
     const statusColors = {
         open_to_work: "bg-blue-100 text-blue-800 border-blue-200",
         hiring: "bg-red-100 text-red-800 border-red-200",
@@ -63,18 +71,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                             </AvatarFallback>
                         </Avatar>
 
-                        import {getConnectionStatus} from "@/app/actions_connections";
-                        import {ConnectButton} from "@/components/profile/ConnectButton";
-
-                        // ... inside component ...
-                        // 4. Get Connection Status
-                        let connectionStatus = 'none';
-                        if (!isOwner && currentUser) {
-                            connectionStatus = await getConnectionStatus(profile.id);
-    }
-
-                        return (
-                        // ...
                         <div className="flex gap-2 mb-1">
                             {isOwner ? (
                                 <ProfileEditWrapper profile={profile} />
