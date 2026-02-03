@@ -3,6 +3,7 @@ import { Search, Bell, MessageSquare, Home, Users, Briefcase } from "lucide-reac
 import { Button } from "@/components/ui/button"
 import { UserNav } from "@/components/layout/UserNav"
 import { createClient } from "@/utils/supabase/server"
+import SearchInput from "@/components/layout/SearchInput"
 
 export default async function Navbar() {
     const supabase = await createClient()
@@ -23,12 +24,7 @@ export default async function Navbar() {
 
                 {/* Search Bar - Minimalist */}
                 <div className="hidden md:flex relative w-1/3 max-w-sm items-center">
-                    <Search className="absolute left-3 h-4 w-4 text-gray-400" />
-                    <input
-                        type="search"
-                        placeholder="Tìm kiếm nhân tài, cơ hội..."
-                        className="w-full h-10 pl-10 pr-4 rounded-full bg-slate-100 border-transparent focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none text-sm placeholder:text-gray-400"
-                    />
+                    <SearchInput />
                 </div>
 
                 {/* Right Section */}
