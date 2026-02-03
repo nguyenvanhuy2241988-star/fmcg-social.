@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function createNotification(
     receiver_id: string,
-    type: 'like' | 'comment' | 'connection_request' | 'connection_accepted',
+    type: 'like' | 'comment' | 'connection_request' | 'connection_accepted' | 'job_application',
     entity_id: string
 ) {
     const supabase = await createClient();
