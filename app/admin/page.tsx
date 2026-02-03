@@ -52,6 +52,10 @@ export default function AdminPage() {
                     <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
                     <p className="text-muted-foreground">Quản lý và xét duyệt hồ sơ</p>
                 </div>
+                {/* Debug Info */}
+                <div className="ml-auto px-3 py-1 bg-gray-100 rounded text-xs text-gray-500">
+                    Role Check: {requests === null ? 'Checking...' : (requests.length >= 0 ? 'Admin Access OK' : 'Access Denied')}
+                </div>
             </div>
 
             <div className="grid gap-6">
