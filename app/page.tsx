@@ -1,8 +1,12 @@
 import PostCard from "@/components/feed/PostCard";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import CreatePost from "@/components/feed/CreatePost";
+import { createClient } from "@/utils/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Mock data for now (will be replaced by real data later)
   const posts = [
     {
       id: 1,
@@ -41,15 +45,7 @@ export default function Home() {
       {/* Main Feed */}
       <main className="space-y-4">
         {/* Create Post Input */}
-        <div className="rounded-lg border bg-card p-4 flex gap-4 items-center cursor-pointer hover:bg-accent/50 transition-colors">
-          <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">ME</div>
-          <input
-            readOnly
-            className="flex-1 bg-transparent border-none outline-none text-muted-foreground text-sm cursor-pointer"
-            placeholder="Bạn đang nghĩ gì? (Tuyển dụng / Tìm việc...)"
-          />
-          <PlusCircle className="text-primary h-6 w-6" />
-        </div>
+        <CreatePost user={user} />
 
         {/* Feed Items */}
         {posts.map((post) => (
