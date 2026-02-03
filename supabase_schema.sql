@@ -207,6 +207,10 @@ begin
 end;
 $$ language plpgsql;
 
+-- 14. FIX PROFILES SCHEMA (Add created_at)
+alter table public.profiles 
+add column if not exists created_at timestamp with time zone default now();
+
 -- Trigger tự động tạo mã khi insert profile mới (nếu chưa có)
 -- create trigger on_auth_user_created_referral
 --   before insert on public.profiles

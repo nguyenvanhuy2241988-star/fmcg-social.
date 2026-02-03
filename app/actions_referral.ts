@@ -109,6 +109,25 @@ export async function applyReferralCode(code: string) {
         return { error: "Có lỗi xảy ra. Thử lại sau." };
     }
 
-    revalidatePath('/profile');
-    return { success: true };
-}
+    // 4. Get My Referrer (Who invited me?)
+    export async function getMyReferrer() {
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) return null;
+
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select(`
+            referrer:referrer_id (
+                full_name,
+                avatar_url,
+                headline,
+                email
+            )
+        `)
+            .eq('id', user.id)
+            .single();
+
+        return profile?.referrer; // Returns the referrer object or null
+    }

@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import { getReferralCode, getReferralStats } from "@/app/actions_referral";
+import { getReferralCode, getReferralStats, getMyReferrer } from "@/app/actions_referral";
 import InviteCard from "@/components/referral/InviteCard";
 import ReferralInput from "@/components/referral/ReferralInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,6 +11,7 @@ import { vi } from "date-fns/locale";
 export default async function NetworkPage() {
     const referralCode = await getReferralCode();
     const { count, list } = await getReferralStats();
+    const myReferrer: any = await getMyReferrer();
 
     return (
         <div className="container max-w-4xl mx-auto px-4 py-8">
@@ -30,6 +31,22 @@ export default async function NetworkPage() {
                             <p className="text-xs text-muted-foreground mt-1">Người đã nhập mã của bạn</p>
                         </CardContent>
                     </Card>
+
+                    {myReferrer && (
+                        <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                            <h4 className="text-xs font-bold text-blue-600 uppercase mb-3">Người giới thiệu tôi</h4>
+                            <div className="flex items-center gap-3">
+                                <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
+                                    <AvatarImage src={myReferrer.avatar_url} />
+                                    <AvatarFallback>{myReferrer.full_name?.[0]}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <div className="font-bold text-gray-900 text-sm">{myReferrer.full_name}</div>
+                                    <div className="text-xs text-muted-foreground">{myReferrer.headline || "Thành viên"}</div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Right Column: List of Referees */}
