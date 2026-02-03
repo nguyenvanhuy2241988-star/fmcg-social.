@@ -65,14 +65,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     };
     const currentStatus = profile.availability_status as keyof typeof statusLabels || 'open_to_work';
 
-    return (
     // 5. Fetch User's Posts
     const userPosts = await getUserPosts(profile.id);
 
-    // Import helper (we need to ensure this import exists at top of file, so I will add it via another edit or just assume/add it here if I could)
-    // Actually I will rewrite the return statement to use grid layout
-
     return (
+
         <div className="container max-w-6xl py-8">
             {/* 1. COVER & HEADER SECTION */}
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden relative mb-6">
