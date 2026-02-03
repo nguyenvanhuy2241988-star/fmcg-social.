@@ -10,6 +10,7 @@ import Link from "next/link";
 import PostCard from "@/components/feed/PostCard";
 import { getUserPosts } from "@/app/actions_posts";
 import SuggestedConnections from "@/components/feed/SuggestedConnections";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient();
@@ -85,7 +86,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                         </Avatar>
 
                         <div className="flex-1 mb-2">
-                            <h1 className="text-3xl font-bold text-gray-900 mb-1">{profile.full_name}</h1>
+                            <h1 className="text-3xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+                                {profile.full_name}
+                                {profile.is_verified && <VerifiedBadge size={28} />}
+                            </h1>
                             <p className="text-lg text-teal-700 font-medium mb-1">{profile.headline || "Thành viên Cộng đồng FMCG"}</p>
                             <div className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${statusColors[currentStatus]}`}>
                                 {statusLabels[currentStatus]}
