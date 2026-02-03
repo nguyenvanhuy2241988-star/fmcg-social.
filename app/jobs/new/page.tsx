@@ -1,18 +1,23 @@
 import { createJob } from "@/app/actions_jobs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea"; // Assuming Textarea component exists, if not I will use native textarea
-import { BackButton } from "@/components/ui/button"; // Standard back button if available, or just Link
-// Let's check if Textarea exists later. For now assume standard HTML or shadcn if installed.
-// Actually I should verify Textarea component. I'll use standard HTML textarea for safety if not sure, or better yet check shadcn.
-// I already verified shadcn installation. Textarea is usually separate. Let's use native for now or simple styling.
+import { Textarea } from "@/components/ui/textarea";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function NewJobPage() {
     return (
         <div className="container max-w-2xl mx-auto px-4 py-8">
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900">Đăng tin tuyển dụng mới</h1>
-                <p className="text-muted-foreground text-sm">Tìm kiếm nhân tài FMCG nhanh chóng</p>
+            <div className="mb-6 space-y-4">
+                <Link href="/jobs">
+                    <Button variant="ghost" size="sm" className="gap-1 pl-0 text-muted-foreground hover:text-teal-600">
+                        <ArrowLeft className="h-4 w-4" /> Quay lại danh sách
+                    </Button>
+                </Link>
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">Đăng tin tuyển dụng mới</h1>
+                    <p className="text-muted-foreground text-sm">Tìm kiếm nhân tài FMCG nhanh chóng</p>
+                </div>
             </div>
 
             <form action={createJob} className="bg-white p-6 rounded-xl border shadow-sm space-y-6">
@@ -52,12 +57,11 @@ export default function NewJobPage() {
 
                 <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Mô tả công việc</label>
-                    <textarea
+                    <Textarea
                         name="description"
                         rows={5}
-                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         placeholder="Mô tả chi tiết công việc, quyền lợi, yêu cầu..."
-                    ></textarea>
+                    />
                 </div>
 
                 <div className="pt-4 flex gap-4">
