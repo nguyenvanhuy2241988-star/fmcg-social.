@@ -2,6 +2,7 @@ import PostCard from "@/components/feed/PostCard";
 import CreatePost from "@/components/feed/CreatePost";
 import { createClient } from "@/utils/supabase/server";
 import { RequestItem } from "@/components/feed/RequestItem";
+import Link from "next/link";
 
 export default async function Home() {
   const supabase = await createClient();
