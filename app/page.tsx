@@ -6,26 +6,17 @@ export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Mock data for now (will be replaced by real data later)
-  const posts = [
-    {
-      id: 1,
-      author: { name: "Nguyễn Văn A", role: "Sales Supervisor @ Unilever" },
-      content: "Tuyển gấp 5 bạn Sales Rep khu vực Hà Nội. Lương cứng 8tr + Thưởng. Chế độ đầy đủ. Anh em nào quan tâm inbox nhé!",
-      timestamp: "2 giờ trước",
-      likes: 45,
-      comments: 12,
-    },
-    {
-      id: 2,
-      author: { name: "Trần Thị B", role: "Key Account Manager @ Masan" },
-      content: "Vừa hoàn thành dự án trưng bày Tết. Cảm ơn team đã chiến đấu hết mình! 🏮🌸 #FMCG #TradeMarketing",
-      imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1000&auto=format&fit=crop",
-      timestamp: "5 giờ trước",
-      likes: 128,
-      comments: 34,
-    },
-  ];
+  const { data: posts } = await supabase
+    .from('posts')
+    .select(`
+      *,
+      profiles (
+        full_name,
+        headline,
+        avatar_url
+      )
+    `)
+    .order('created_at', { ascending: false });
 
   return (
     <div className="container py-6 grid md:grid-cols-[1fr_2fr_1fr] gap-6">
@@ -48,17 +39,18 @@ export default async function Home() {
         <CreatePost user={user} />
 
         {/* Feed Items */}
-        {posts.map((post) => (
+        {posts?.map((post) => (
           <PostCard
             key={post.id}
-            author={post.author}
-            content={post.content}
-            imageUrl={post.imageUrl}
-            timestamp={post.timestamp}
-            likes={post.likes}
-            comments={post.comments}
+            {...post}
           />
         ))}
+
+        {!posts?.length && (
+          <div className="text-center text-muted-foreground py-10">
+            Chưa có bài viết nào. Hãy là người đầu tiên chia sẻ!
+          </div>
+        )}
       </main>
 
       {/* Sidebar Right */}
