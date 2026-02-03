@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { getReferralCode, getReferralStats } from "@/app/actions_referral";
 import InviteCard from "@/components/referral/InviteCard";
+import ReferralInput from "@/components/referral/ReferralInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, UserPlus } from "lucide-react";
