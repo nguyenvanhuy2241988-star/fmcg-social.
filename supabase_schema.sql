@@ -215,5 +215,42 @@ add column if not exists created_at timestamp with time zone default now();
 -- create trigger on_auth_user_created_referral
 --   before insert on public.profiles
 --   for each row execute procedure generate_referral_code();
--- (Note: Ta sẽ xử lý logic tạo mã ở server side hoặc trigger tùy chọn, 
--- để đơn giản ta có thể update thủ công hoặc qua API khi user bấm "Tạo mã")
+-- 15. VERIFICATION SYSTEM (Phase 3)
+-- Cập nhật role admin và cột is_verified
+alter table public.profiles 
+drop constraint if exists profiles_role_check;
+
+alter table public.profiles
+add constraint profiles_role_check check (role in ('candidate', 'recruiter', 'admin'));
+
+alter table public.profiles
+add column if not exists is_verified boolean default false;
+
+-- Tạo bảng yêu cầu xác minh
+create table public.verification_requests (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.profiles(id) not null,
+  image_url text not null, -- Link ảnh CCCD/CMND
+  status text default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  created_at timestamp with time zone default now()
+);
+
+-- Bảo mật cho bảng Verification
+alter table public.verification_requests enable row level security;
+
+create policy "Users can submit own verification"
+  on verification_requests for insert
+  with check ( auth.uid() = user_id );
+
+create policy "Users can view own verification status"
+  on verification_requests for select
+  using ( auth.uid() = user_id );
+
+create policy "Admins can view all verifications"
+  on verification_requests for select
+  using ( exists (select 1 from profiles where id = auth.uid() and role = 'admin') );
+
+create policy "Admins can update verifications"
+  on verification_requests for update
+  using ( exists (select 1 from profiles where id = auth.uid() and role = 'admin') );
+
