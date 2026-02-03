@@ -28,11 +28,11 @@ export async function getJobs() {
     return jobs || [];
 }
 
-export async function createJob(formData: FormData) {
+export async function createJob(prevState: any, formData: FormData) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) return { error: "Unauthorized" };
+    if (!user) return { error: "Bạn cần đăng nhập để thực hiện thao tác này." };
 
     const title = formData.get('title') as string;
     const company_name = formData.get('company_name') as string;
@@ -56,7 +56,7 @@ export async function createJob(formData: FormData) {
 
     if (error) {
         console.error("Error creating job:", error);
-        return { error: "Failed to create job" };
+        return { error: "Có lỗi xảy ra khi tạo tin tuyển dụng. Vui lòng thử lại." };
     }
 
     revalidatePath('/jobs');
