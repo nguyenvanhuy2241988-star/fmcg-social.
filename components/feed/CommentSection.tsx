@@ -27,14 +27,40 @@ interface CommentSectionProps {
     currentUser: any; // User object from Supabase Auth
 }
 
+import { createClient } from "@/utils/supabase/client";
+
+// ... existing imports
+
 export default function CommentSection({ postId, currentUser }: CommentSectionProps) {
     const [comments, setComments] = useState<Comment[]>([]);
-    const [newComment, setNewComment] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [isSending, setIsSending] = useState(false);
+    // ... other states
 
     useEffect(() => {
         loadComments();
+
+        // Realtime Subscription
+        const supabase = createClient();
+        const channel = supabase
+            .channel(`comments-${postId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'comments',
+                    filter: `post_id=eq.${postId}`
+                },
+                (payload) => {
+                    console.log("New comment received!", payload);
+                    // Reload comments to get full profile data
+                    loadComments();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        }
     }, [postId]);
 
     const loadComments = async () => {
