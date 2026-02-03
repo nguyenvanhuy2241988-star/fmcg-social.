@@ -11,6 +11,8 @@ import { vi } from "date-fns/locale";
 import { toggleLike } from "@/app/actions";
 import { cn } from "@/lib/utils";
 
+import Link from "next/link";
+
 interface PostProps {
     id: string;
     content: string;
@@ -19,6 +21,7 @@ interface PostProps {
     likes_count: number;
     comments_count: number;
     has_liked?: boolean;
+    author_id: string;
     profiles: {
         full_name: string | null;
         headline: string | null;
@@ -26,7 +29,7 @@ interface PostProps {
     } | null;
 }
 
-export default function PostCard({ id, content, image_url, created_at, likes_count, comments_count, has_liked, profiles }: PostProps) {
+export default function PostCard({ id, content, image_url, created_at, likes_count, comments_count, has_liked, author_id, profiles }: PostProps) {
     const [isLiked, setIsLiked] = useState(has_liked);
     const [likes, setLikes] = useState(likes_count);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -52,12 +55,16 @@ export default function PostCard({ id, content, image_url, created_at, likes_cou
     return (
         <Card className="mb-4 w-full">
             <CardHeader className="flex flex-row items-center gap-4 p-4">
-                <Avatar>
-                    <AvatarImage src={authorAvatar} alt={authorName} />
-                    <AvatarFallback>{authorName.charAt(0)}</AvatarFallback>
-                </Avatar>
+                <Link href={`/profile/${author_id}`}>
+                    <Avatar className="cursor-pointer hover:opacity-80 transition-opacity">
+                        <AvatarImage src={authorAvatar} alt={authorName} />
+                        <AvatarFallback>{authorName.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                </Link>
                 <div className="flex flex-col">
-                    <p className="text-sm font-semibold">{authorName}</p>
+                    <Link href={`/profile/${author_id}`} className="hover:underline">
+                        <p className="text-sm font-semibold">{authorName}</p>
+                    </Link>
                     <p className="text-xs text-muted-foreground">{authorRole} • {timeAgo}</p>
                 </div>
                 <Button variant="ghost" size="icon" className="ml-auto">
