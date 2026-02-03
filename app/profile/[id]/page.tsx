@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Briefcase, Calendar, Edit, Share2 } from "lucide-react";
 import ProfileEditWrapper from "@/components/profile/ProfileEditWrapper"; // Wrapper to handle client-side modal state
 
-export default async function ProfilePage({ params }: { params: { id: string } }) {
+export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient();
-    const { id } = params;
+    const { id } = await params;
 
     // 1. Fetch Profile Data
     const { data: profile, error } = await supabase
