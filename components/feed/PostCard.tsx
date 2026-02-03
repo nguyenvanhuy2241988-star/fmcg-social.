@@ -55,7 +55,7 @@ export default function PostCard({ id, content, image_url, created_at, likes_cou
     return (
         <Card className="mb-4 w-full">
             <CardHeader className="flex flex-row items-center gap-4 p-4">
-                <Link href={`/profile/${author_id}`}>
+                <Link href={`/profile/${author_id}`} className="relative z-10 block">
                     <Avatar className="cursor-pointer hover:opacity-80 transition-opacity">
                         <AvatarImage src={authorAvatar} alt={authorName} />
                         <AvatarFallback>{authorName.charAt(0)}</AvatarFallback>

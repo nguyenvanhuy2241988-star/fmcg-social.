@@ -59,6 +59,7 @@ export default async function Home() {
           <PostCard
             key={post.id}
             {...post}
+            author_id={post.author_id}
           />
         ))}
 
