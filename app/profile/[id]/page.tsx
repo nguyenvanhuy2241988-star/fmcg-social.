@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Briefcase, Calendar, Edit, Share2 } from "lucide-react";
 import ProfileEditWrapper from "@/components/profile/ProfileEditWrapper";
-import { getConnectionStatus } from "@/app/actions_connections";
+import { getConnectionStatus, getConnections } from "@/app/actions_connections";
 import { ConnectButton } from "@/components/profile/ConnectButton";
 
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
@@ -36,10 +36,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     const { data: { user: currentUser } } = await supabase.auth.getUser();
     const isOwner = currentUser?.id === profile.id;
 
-    import { getConnectionStatus, getConnections } from "@/app/actions_connections";
-    // ... imports
-
-    // ... inside ProfilePage
     // 3. Get Connection Status & List
     let connectionStatus = 'none';
     let connections: any[] = [];
@@ -135,7 +131,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                             </div>
                         </div>
                     </div>
-
 
                     {/* Call to Action (Fake for now) */}
                     <div className="border-t pt-4 mt-6 flex justify-center">
