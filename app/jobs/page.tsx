@@ -17,6 +17,11 @@ export default async function JobsPage() {
                     <p className="text-muted-foreground text-sm">Cơ hội việc làm hot nhất ngành hàng tiêu dùng</p>
                 </div>
                 <div className="flex gap-2">
+                    <Link href="/jobs/applied">
+                        <Button variant="ghost" className="hidden sm:flex text-gray-600 hover:text-teal-600">
+                            Đã ứng tuyển
+                        </Button>
+                    </Link>
                     <Link href="/jobs/manage">
                         <Button variant="outline" className="hidden sm:flex">
                             Quản lý tin đăng
