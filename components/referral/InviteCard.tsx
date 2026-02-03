@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Copy, Check, Share2, Award } from "lucide-react";
-import { toast } from "sonner"; // Assuming sonner is installed or will be used, or fallback to alert
+// import { toast } from "sonner"; // Removed to avoid build error
 
 export default function InviteCard({ code }: { code: string }) {
     const [copied, setCopied] = useState(false);
