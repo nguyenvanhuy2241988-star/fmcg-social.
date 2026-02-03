@@ -105,6 +105,34 @@ begin;
   drop publication if exists supabase_realtime;
   create publication supabase_realtime;
 commit;
+-- 8. TẠO BẢNG NOTIFICATIONS (Thông báo)
+create table public.notifications (
+  id uuid default gen_random_uuid() primary key,
+  receiver_id uuid references public.profiles(id) not null,
+  actor_id uuid references public.profiles(id) not null, -- Người gây ra thông báo
+  type text check (type in ('like', 'comment', 'connection_request', 'connection_accepted')),
+  entity_id uuid, -- ID của post hoặc connection
+  is_read boolean default false,
+  created_at timestamp with time zone default now()
+);
+
+-- Bật bảo mật
+alter table public.notifications enable row level security;
+
+create policy "Users can view own notifications"
+  on notifications for select
+  using ( auth.uid() = receiver_id );
+
+create policy "System can insert notifications"
+  on notifications for insert
+  with check ( true ); -- Cho phép tạo thoải mái từ trigger hoặc API
+
+-- 9. BẬT REALTIME
+begin;
+  drop publication if exists supabase_realtime;
+  create publication supabase_realtime;
+commit;
 alter publication supabase_realtime add table public.posts;
 alter publication supabase_realtime add table public.likes;
 alter publication supabase_realtime add table public.comments;
+alter publication supabase_realtime add table public.notifications;

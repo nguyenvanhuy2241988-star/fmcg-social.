@@ -31,6 +31,13 @@ export async function addComment(postId: string, content: string) {
     // Increment comment_count
     await supabase.rpc('increment_comments_count', { post_id: postId });
 
+    // Notify Post Author
+    const { data: post } = await supabase.from('posts').select('author_id').eq('id', postId).single();
+    if (post) {
+        const { createNotification } = await import('./actions_notifications');
+        await createNotification(post.author_id, 'comment', postId);
+    }
+
     revalidatePath('/');
     revalidatePath(`/profile/${user.id}`); // In case it's on profile
 }

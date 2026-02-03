@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { UserNav } from "@/components/layout/UserNav"
 import { createClient } from "@/utils/supabase/server"
 import SearchInput from "@/components/layout/SearchInput"
+import NotificationBell from "./NotificationBell"
 
 export default async function Navbar() {
     const supabase = await createClient()
@@ -43,12 +44,9 @@ export default async function Navbar() {
                             <Link href="/messages">
                                 <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-teal-600">
                                     <MessageSquare className="h-5 w-5" />
-                                    {/* <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span> */}
                                 </Button>
                             </Link>
-                            <Button variant="ghost" size="icon" className="text-gray-500 hover:text-primary hover:bg-primary/5">
-                                <Bell className="h-5 w-5" />
-                            </Button>
+                            <NotificationBell currentUser={user} />
                             <div className="ml-2">
                                 <UserNav user={user} />
                             </div>

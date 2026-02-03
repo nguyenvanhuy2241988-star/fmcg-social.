@@ -47,6 +47,11 @@ export async function sendConnectionRequest(targetUserId: string) {
     }
 
     revalidatePath(`/profile/${targetUserId}`)
+
+    // Notify Receiver
+    const { createNotification } = await import('./actions_notifications')
+    await createNotification(targetUserId, 'connection_request', user.id)
+
     return { success: true }
 }
 
@@ -68,6 +73,11 @@ export async function acceptConnectionRequest(requesterId: string) {
     }
 
     revalidatePath(`/profile/${requesterId}`)
+
+    // Notify Requester
+    const { createNotification } = await import('./actions_notifications')
+    await createNotification(requesterId, 'connection_accepted', user.id)
+
     return { success: true }
 }
 

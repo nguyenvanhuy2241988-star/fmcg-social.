@@ -83,6 +83,13 @@ export async function toggleLike(postId: string) {
             user_id: user.id,
             post_id: postId
         })
+
+        // Notify Post Author
+        const { data: post } = await supabase.from('posts').select('author_id').eq('id', postId).single()
+        if (post) {
+            const { createNotification } = await import('./actions_notifications')
+            await createNotification(post.author_id, 'like', postId)
+        }
     }
 
     revalidatePath('/')
