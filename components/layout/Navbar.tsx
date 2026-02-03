@@ -33,9 +33,11 @@ export default async function Navbar() {
                     <Button variant="ghost" size="icon" className="text-gray-500 hover:text-primary hover:bg-primary/5 hidden sm:flex">
                         <Home className="h-5 w-5" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-gray-500 hover:text-primary hover:bg-primary/5 hidden sm:flex">
-                        <Users className="h-5 w-5" />
-                    </Button>
+                    <Link href="/jobs">
+                        <Button variant="ghost" size="icon" className="text-gray-500 hover:text-teal-600 hover:bg-teal-50 hidden sm:flex" title="Việc làm">
+                            <Briefcase className="h-5 w-5" />
+                        </Button>
+                    </Link>
 
                     <div className="h-6 w-px bg-gray-200 mx-2 hidden sm:block"></div>
 

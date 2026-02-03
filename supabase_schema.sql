@@ -136,3 +136,53 @@ alter publication supabase_realtime add table public.posts;
 alter publication supabase_realtime add table public.likes;
 alter publication supabase_realtime add table public.comments;
 alter publication supabase_realtime add table public.notifications;
+
+-- 10. TẠO BẢNG JOBS (Tin tuyển dụng)
+create table public.jobs (
+  id uuid default gen_random_uuid() primary key,
+  recruiter_id uuid references public.profiles(id) not null,
+  title text not null, -- Vị trí: VD: Sales Sup, Giao hàng
+  company_name text, -- Tên công ty/NPP (nếu khác tên profile)
+  location text not null, -- Khu vực: VD: Cầu Giấy, Hà Nội
+  salary_range text, -- VD: 10 - 15 triệu
+  description text,
+  requirements text, -- Yêu cầu
+  benefits text, -- Quyền lợi
+  category text, -- VD: Sales, Kho, Kế toán
+  status text default 'active' check (status in ('active', 'closed')),
+  created_at timestamp with time zone default now()
+);
+
+-- Bảo mật cho JOBS
+alter table public.jobs enable row level security;
+create policy "Anyone can view active jobs" on jobs for select using ( status = 'active' );
+create policy "Recruiters can insert jobs" on jobs for insert with check ( auth.uid() = recruiter_id );
+create policy "Recruiters can update own jobs" on jobs for update using ( auth.uid() = recruiter_id );
+
+-- 11. TẠO BẢNG JOB_APPLICATIONS (Ứng tuyển)
+create table public.job_applications (
+  id uuid default gen_random_uuid() primary key,
+  job_id uuid references public.jobs(id) not null,
+  applicant_id uuid references public.profiles(id) not null,
+  cover_letter text, -- Lời nhắn ngắn gọn
+  status text default 'pending' check (status in ('pending', 'reviewed', 'contacted', 'rejected')),
+  created_at timestamp with time zone default now(),
+  unique(job_id, applicant_id) -- Mỗi người chỉ ứng tuyển 1 lần/job
+);
+
+-- Bảo mật cho APPLICATIONS
+alter table public.job_applications enable row level security;
+create policy "Recruiters can view applications for their jobs" 
+  on job_applications for select 
+  using ( exists (select 1 from jobs where jobs.id = job_applications.job_id and jobs.recruiter_id = auth.uid()) );
+
+create policy "Applicants can view own applications"
+  on job_applications for select
+  using ( auth.uid() = applicant_id );
+
+create policy "Users can apply"
+  on job_applications for insert
+  with check ( auth.uid() = applicant_id );
+
+-- 12. Add to Realtime (Optional, maybe for recruiters)
+alter publication supabase_realtime add table public.job_applications;
