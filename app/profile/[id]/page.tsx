@@ -64,11 +64,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     const currentStatus = profile.availability_status as keyof typeof statusLabels || 'open_to_work';
 
     return (
-        <div className="container max-w-2xl py-8">
-            {/* TALENT CARD DESIGN */}
+        <div className="container max-w-4xl py-8">
+            {/* PROFILE CARD */}
             <div className="bg-white rounded-xl shadow-lg border overflow-hidden relative">
                 {/* Cover Background (Teal Gradient) */}
-                <div className="h-32 bg-gradient-to-r from-teal-500 to-emerald-600"></div>
+                <div className="h-40 bg-gradient-to-r from-teal-500 to-emerald-600"></div>
 
                 <div className="px-6 pb-6">
                     <div className="flex justify-between items-end -mt-12 mb-4">
@@ -91,7 +91,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                                         />
                                         {connectionStatus === 'accepted' && (
                                             <Link
-                                                href={`/messages/${profile.id}`}
+                                                href={`/messages?id=${profile.id}`}
                                                 className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3"
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle mr-2"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z" /></svg>

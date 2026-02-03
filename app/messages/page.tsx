@@ -3,56 +3,74 @@ import { createClient } from "@/utils/supabase/server";
 import { getConnections } from "@/app/actions_connections";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
+import ChatWindow from "@/components/chat/ChatWindow";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare } from "lucide-react";
 
-export default async function MessagesPage() {
+export default async function MessagesLayout({ params, searchParams }: { params: Promise<{ userId?: string }>, searchParams: Promise<{ id?: string }> }) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        return <div className="p-8 text-center">Vui lòng đăng nhập.</div>;
-    }
+    if (!user) return <div>Please login</div>;
 
-    // Reuse getConnections to show list of friends to chat with
-    // ideally should sort by last message, but for MVP list of friends is fine
     const connections = await getConnections(user.id);
 
-    return (
-        <div className="container max-w-2xl py-8">
-            <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <MessageSquare className="h-6 w-6 text-teal-600" />
-                Tin nhắn
-            </h1>
+    // Determine selected partner from URL query or first connection
+    const { id: selectedId } = await searchParams;
+    const activePartnerId = selectedId;
 
-            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                {connections.length > 0 ? (
-                    <div className="divide-y">
-                        {connections.map((friend: any) => (
-                            <Link
-                                key={friend.id}
-                                href={`/messages/${friend.id}`}
-                                className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
-                            >
-                                <Avatar className="h-12 w-12">
-                                    <AvatarImage src={friend.avatar_url} />
-                                    <AvatarFallback>{friend.full_name?.[0]}</AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-baseline">
-                                        <h3 className="font-semibold text-gray-900">{friend.full_name}</h3>
-                                        {/* <span className="text-xs text-muted-foreground">12:30</span> */}
+    const activePartner = connections.find((c: any) => c.id === activePartnerId);
+
+    return (
+        <div className="container max-w-6xl py-6 h-[calc(100vh-64px)]">
+            <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] h-full border rounded-xl overflow-hidden shadow-sm bg-white">
+                {/* Left Sidebar: Conversation List */}
+                <div className="border-r flex flex-col bg-gray-50">
+                    <div className="p-4 border-b bg-white">
+                        <h2 className="font-bold text-lg flex items-center gap-2">
+                            <MessageSquare className="h-5 w-5 text-teal-600" />
+                            Trò chuyện
+                        </h2>
+                    </div>
+                    <ScrollArea className="flex-1">
+                        <div className="p-2 space-y-1">
+                            {connections.map((friend: any) => (
+                                <Link
+                                    key={friend.id}
+                                    href={`/messages?id=${friend.id}`}
+                                    className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${activePartnerId === friend.id
+                                            ? "bg-teal-50 text-teal-900 border-l-4 border-teal-500 shadow-sm"
+                                            : "hover:bg-gray-100 text-gray-700"
+                                        }`}
+                                >
+                                    <Avatar className="h-10 w-10 border border-gray-200">
+                                        <AvatarImage src={friend.avatar_url} />
+                                        <AvatarFallback>{friend.full_name?.[0]}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-medium truncate text-sm">{friend.full_name}</p>
+                                        <p className="text-xs text-muted-foreground truncate">{friend.headline || "Thành viên"}</p>
                                     </div>
-                                    <p className="text-sm text-teal-600">Bấm để bắt đầu trò chuyện</p>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="p-8 text-center text-muted-foreground">
-                        <p className="mb-2">Bạn chưa có kết nối nào.</p>
-                        <p className="text-sm">Hãy kết bạn để bắt đầu nhắn tin!</p>
-                    </div>
-                )}
+                                </Link>
+                            ))}
+                        </div>
+                    </ScrollArea>
+                </div>
+
+                {/* Right Area: Chat Window */}
+                <div className="flex flex-col h-full bg-white">
+                    {activePartner ? (
+                        <ChatWindow currentUser={user} partner={activePartner} />
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8 text-center bg-gray-50/50">
+                            <div className="h-16 w-16 bg-teal-100 rounded-full flex items-center justify-center mb-4">
+                                <MessageSquare className="h-8 w-8 text-teal-600" />
+                            </div>
+                            <h3 className="font-semibold text-lg text-gray-900">Mạng lưới kết nối FMCG Social</h3>
+                            <p className="max-w-xs mt-2">Chọn một người bạn từ danh sách bên trái để bắt đầu cuộc trò chuyện.</p>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -59,7 +59,7 @@ export default async function Home() {
             {user && (
               <li className="font-medium text-black">
                 <a href={`/profile/${user.id}`} className="flex items-center gap-2 hover:text-teal-600">
-                  <span>👤</span> Hồ sơ của tôi (Talent Card)
+                  <span>👤</span> Hồ sơ của tôi
                 </a>
               </li>
             )}
