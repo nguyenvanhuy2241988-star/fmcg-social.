@@ -71,7 +71,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
 
     return (
 
-        <div className="container max-w-6xl py-8">
+        <div className="w-full max-w-[1920px] mx-auto px-4 lg:px-8 py-6">
             {/* 1. COVER & HEADER SECTION */}
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden relative mb-6">
                 <div className="h-48 bg-gradient-to-r from-teal-600 to-emerald-600"></div>
