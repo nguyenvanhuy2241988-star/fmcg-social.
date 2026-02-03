@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+import { LoginForm, RegisterForm } from "@/components/auth/AuthForms"
+
 export default function LoginPage() {
     return (
         <div className="flex min-h-[80vh] items-center justify-center p-4">
@@ -31,24 +33,9 @@ export default function LoginPage() {
                                 Đăng nhập để kết nối với mạng lưới FMCG.
                             </CardDescription>
                         </CardHeader>
-                        <form action={async (formData) => {
-                            'use server'
-                            await login(formData)
-                        }}>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input id="email" name="email" type="email" placeholder="name@company.com" required />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="password">Mật khẩu</Label>
-                                    <Input id="password" name="password" type="password" required />
-                                </div>
-                            </CardContent>
-                            <CardFooter>
-                                <Button type="submit" className="w-full">Đăng nhập</Button>
-                            </CardFooter>
-                        </form>
+                        <CardContent>
+                            <LoginForm />
+                        </CardContent>
                     </Card>
                 </TabsContent>
 
@@ -61,28 +48,9 @@ export default function LoginPage() {
                                 Tham gia cộng đồng FMCG lớn nhất Việt Nam.
                             </CardDescription>
                         </CardHeader>
-                        <form action={async (formData) => {
-                            'use server'
-                            await signup(formData)
-                        }}>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="fullName">Họ và tên</Label>
-                                    <Input id="fullName" name="fullName" placeholder="Nguyễn Văn A" required />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input id="email" name="email" type="email" placeholder="name@company.com" required />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="password">Mật khẩu</Label>
-                                    <Input id="password" name="password" type="password" required />
-                                </div>
-                            </CardContent>
-                            <CardFooter>
-                                <Button type="submit" className="w-full">Đăng ký</Button>
-                            </CardFooter>
-                        </form>
+                        <CardContent>
+                            <RegisterForm />
+                        </CardContent>
                     </Card>
                 </TabsContent>
             </Tabs>
