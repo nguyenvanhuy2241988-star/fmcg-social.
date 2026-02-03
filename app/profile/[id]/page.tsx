@@ -9,6 +9,7 @@ import { ConnectButton } from "@/components/profile/ConnectButton";
 import Link from "next/link";
 import PostCard from "@/components/feed/PostCard";
 import { getUserPosts } from "@/app/actions_posts";
+import SuggestedConnections from "@/components/feed/SuggestedConnections";
 
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient();
@@ -118,7 +119,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr_1fr] gap-6">
                 {/* 2. LEFT SIDEBAR: INTRO & PHOTOS & FRIENDS */}
                 <div className="space-y-6">
                     {/* Intro Card */}
@@ -176,7 +177,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                     </div>
                 </div>
 
-                {/* 3. RIGHT COLUMN: POSTS FEED */}
+                {/* 3. CENTER COLUMN: POSTS FEED */}
                 <div className="space-y-4">
                     {/* Create Post (Only for Owner) */}
                     {isOwner && (
@@ -204,6 +205,21 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                             <p>Chưa có bài viết nào.</p>
                         </div>
                     )}
+                </div>
+
+                {/* 4. RIGHT SIDEBAR: SUGGESTIONS (LinkedIn Style) */}
+                <div className="hidden lg:block space-y-4">
+                    <SuggestedConnections />
+
+                    <div className="bg-white rounded-xl shadow-sm border p-4">
+                        <h3 className="font-bold text-gray-900 mb-3 text-sm uppercase">Việc làm mới</h3>
+                        <p className="text-sm text-muted-foreground">Tính năng đang phát triển...</p>
+                    </div>
+
+                    <div className="text-xs text-gray-400 text-center px-4">
+                        FMCG Social © 2025<br />
+                        Kết nối nhân tài ngành tiêu dùng nhanh
+                    </div>
                 </div>
             </div>
         </div>

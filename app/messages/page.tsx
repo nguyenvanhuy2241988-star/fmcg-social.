@@ -39,8 +39,8 @@ export default async function MessagesLayout({ params, searchParams }: { params:
                                     key={friend.id}
                                     href={`/messages?id=${friend.id}`}
                                     className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${activePartnerId === friend.id
-                                            ? "bg-teal-50 text-teal-900 border-l-4 border-teal-500 shadow-sm"
-                                            : "hover:bg-gray-100 text-gray-700"
+                                        ? "bg-teal-50 text-teal-900 border-l-4 border-teal-500 shadow-sm"
+                                        : "hover:bg-gray-100 text-gray-700"
                                         }`}
                                 >
                                     <Avatar className="h-10 w-10 border border-gray-200">
@@ -62,12 +62,36 @@ export default async function MessagesLayout({ params, searchParams }: { params:
                     {activePartner ? (
                         <ChatWindow currentUser={user} partner={activePartner} />
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8 text-center bg-gray-50/50">
-                            <div className="h-16 w-16 bg-teal-100 rounded-full flex items-center justify-center mb-4">
-                                <MessageSquare className="h-8 w-8 text-teal-600" />
+                        <div className="flex flex-col items-center justify-center h-full p-8 bg-gray-50/50">
+                            <div className="h-20 w-20 bg-teal-100 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                                <MessageSquare className="h-10 w-10 text-teal-600" />
                             </div>
-                            <h3 className="font-semibold text-lg text-gray-900">Mạng lưới kết nối FMCG Social</h3>
-                            <p className="max-w-xs mt-2">Chọn một người bạn từ danh sách bên trái để bắt đầu cuộc trò chuyện.</p>
+                            <h3 className="font-bold text-2xl text-gray-900 mb-2">Chào mừng đến với FMCG Chat</h3>
+                            <p className="text-muted-foreground mb-8 text-center max-w-md">
+                                Chọn một người bạn từ danh sách bên trái để bắt đầu trò chuyện hoặc kết nối với những người bạn mới.
+                            </p>
+
+                            {/* Suggestions Grid for Empty State */}
+                            <div className="w-full max-w-2xl bg-white rounded-xl border p-6 shadow-sm">
+                                <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <span>🚀</span> Gợi ý kết nối nhanh
+                                </h4>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                    {/* Using Mock Data inline or import Component but customized */}
+                                    {[1, 2, 3].map((i) => (
+                                        <div key={i} className="border rounded-lg p-3 flex flex-col items-center text-center hover:border-teal-500 transition-colors cursor-pointer group">
+                                            <Avatar className="h-12 w-12 mb-2">
+                                                <AvatarFallback>U{i}</AvatarFallback>
+                                            </Avatar>
+                                            <p className="font-medium text-sm group-hover:text-teal-600">Thành viên FMCG {i}</p>
+                                            <p className="text-xs text-muted-foreground mb-2">Sales Supervisor</p>
+                                            <button className="text-xs bg-teal-50 text-teal-700 px-3 py-1 rounded-full font-medium group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                                                Kết nối ngay
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
